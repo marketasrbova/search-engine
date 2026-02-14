@@ -1,9 +1,11 @@
 import {JSDOM} from "jsdom";
+import fs from "fs/promises";
 
 const baseUrl = "https://ssps.cz";
 const urlsToCrawl = [baseUrl];
 const visited = new Set(); // každá hodnota v něm může být pouze jednou
 const maxCrawl = 4;
+const rawData = [];
 
 function normalizeUrl(urlString){
     const urlObj = new URL(urlString);
@@ -26,6 +28,11 @@ const crawl = async () => {
         const response = await fetch(currentUrl);
         const htmlBody = await response.text(); // převádí tělíčko na string
         
+        rawData.push({
+            url: currentUrl,
+            html: htmlBody
+        });
+
         const dom = new JSDOM(htmlBody);
         const document = dom.window.document;
 
@@ -41,7 +48,12 @@ const crawl = async () => {
         
 
         urlsToCrawl.push(...links);
-        console.log(urlsToCrawl);    
+        //console.log(urlsToCrawl);    
     }
+
+    await fs.writeFile(
+        "../data/raw/document.json",
+        JSON.stringify(rawData, null, 2), // null: data se nijak specificky netransformují, 2: odsazení pro čitelnost JSONu
+        "utf-8");
 }
 crawl();
