@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import {JSDOM} from "jsdom";
 
-const invertedIndex = await fs.readFile("../data/clean/inverted-index.json", "utf-8");
+const invertedIndex = await fs.readFile("./data/clean/inverted-index.json", "utf-8");
 const index = JSON.parse(invertedIndex);
 
 function magnitude(index){
@@ -45,18 +45,26 @@ function search(index, pageMagnitudes, query){
         queryMagnitude += queryWeight * queryWeight; 
 
         const terms = index[term] ?? [];
-        for (const {pageId, tfidf} of terms){
-            cosineSimilarity[pageId] = (cosineSimilarity[pageId] ?? 0) + tfidf * queryWeight; // vektor stránky * velikost vektoru dotazu = dotProduct
+
+        for (const {pageId, url, tfidf} of terms){
+            if(!cosineSimilarity[pageId]){
+                cosineSimilarity[pageId] = {url, score: 0};
+            }
+            cosineSimilarity[pageId].score += tfidf * queryWeight; // vektor stránky * velikost vektoru dotazu = dotProduct
         }
     }
 
     queryMagnitude = Math.sqrt(queryMagnitude); // velikost vektoru dotazu |v|, po tom, co se započítají všechna slova dotazu
 
     for(const pageId in cosineSimilarity){ // score = (A · B) / (|A| × |B|)
-        cosineSimilarity[pageId] /= pageMagnitudes[pageId] * queryMagnitude; // dotproduct/ (velikost vektoru stránky * velikost vektoru dotazu)
+        cosineSimilarity[pageId].score /= pageMagnitudes[pageId] * queryMagnitude; // dotproduct/ (velikost vektoru stránky * velikost vektoru dotazu)
     }
 
-    return Object.entries(cosineSimilarity).sort((a,b) => b[1] - a[1]).map(([pageId, score]) => ({pageId, score}));
+    return Object.values(cosineSimilarity).sort((a, b) => b.score - a.score);
+}
+
+export function searchPages(query){
+    return search(index, pageMagnitudes, query);
 }
 
 console.log(search(index, pageMagnitudes, 'hello world'));

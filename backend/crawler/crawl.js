@@ -1,10 +1,10 @@
 import {JSDOM} from "jsdom";
 import fs from "fs/promises";
 
-const baseUrl = "https://ssps.cz";
+const baseUrl = "https://www.ox.ac.uk";
 const urlsToCrawl = [baseUrl];
 const visited = new Set(); // každá hodnota v něm může být pouze jednou
-const maxCrawl = 4;
+const maxCrawl = 40;
 const rawData = [];
 
 function normalizeUrl(urlString){

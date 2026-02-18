@@ -38,7 +38,7 @@ for (let i = 0; i < pages.length; i++){
             invertedIndex[word] = [];
         }        
 
-        invertedIndex[word].push({pageId: pageID, tf: tf});
+        invertedIndex[word].push({pageId: pageID, url: pages[i].url , tf: tf});
     }
     
     }
