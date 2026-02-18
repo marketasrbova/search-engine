@@ -1,6 +1,5 @@
 import fs from "fs/promises";
 import {JSDOM} from "jsdom";
-import { title } from "process";
 
 const dataContent = await fs.readFile("../data/raw/document.json", "utf-8");
 const pages = JSON.parse(dataContent);
@@ -54,6 +53,6 @@ for (let i = 0; i < pages.length; i++){
     console.log(invertedIndex);
 
     await fs.writeFile(
-        "../data/raw/inverted-index.json",
+        "../data/clean/inverted-index.json",
         JSON.stringify(invertedIndex, null, 2), 
         "utf-8");
