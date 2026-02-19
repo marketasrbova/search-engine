@@ -20,7 +20,12 @@ for (let i = 0; i < pages.length; i++){
     pureText = pureText.toLowerCase()
     .replace(/[^\p{L}\p{N}\s]/gu, "");
 
-    const words = pureText.match(/\p{L}+/gu) ?? [];
+    const stopWords = new Set([
+        "a", "an", "and","the","of","to","in","on","for","is","are","was","were","be","by","with","as","at","from","that","this","it","or","not"
+    ]); //alespoň trochu zpřesnění vyhledávání
+
+    const words = pureText.match(/\p{L}+/gu) ?? []
+    .filter(word => word && !stopWords.has(word));
 
     const wordFrequency = {};
     for(let word of words){

@@ -29,7 +29,7 @@ function createQueryVector(query){
     const totalWords = words.length;
     const queryVector = {};
     for(let word in wordCount){
-        queryVector[word] = wordCount[word] / totalWords; // tf?
+        queryVector[word] = (wordCount[word] / totalWords); // tf?
     }
     return queryVector;
 }
@@ -64,7 +64,6 @@ function search(index, pageMagnitudes, query){
 }
 
 export function searchPages(query){
+    console.log("dotaz: ", query , "index:", search(index, pageMagnitudes, query))
     return search(index, pageMagnitudes, query);
 }
-
-console.log(search(index, pageMagnitudes, 'hello world'));

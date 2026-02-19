@@ -1,10 +1,11 @@
 import {JSDOM} from "jsdom";
 import fs from "fs/promises";
 
-const baseUrl = "https://www.ox.ac.uk";
+const baseUrl = "https://www.cam.ac.uk";
 const urlsToCrawl = [baseUrl];
+const toCrawlOnPage = [];
 const visited = new Set(); // každá hodnota v něm může být pouze jednou
-const maxCrawl = 40;
+const maxCrawl = 100;
 const rawData = [];
 
 function normalizeUrl(urlString){
@@ -19,9 +20,12 @@ function normalizeUrl(urlString){
 
 const crawl = async () => {
     for (let i = 0; i < maxCrawl && urlsToCrawl.length > 0; i++) {
-        const currentUrl = urlsToCrawl.shift(); // vezme první z urlsToCrawl a zároveň ji vymaže
-        const normalizedUrl = normalizeUrl(currentUrl);
+        let currentUrl = urlsToCrawl.shift() ?? toCrawlOnPage.shift(); // vezme první z urlsToCrawl a zároveň ji vymaže
+        if(!currentUrl){
+            break;
+        }
 
+        const normalizedUrl = normalizeUrl(currentUrl);
         if (visited.has(normalizedUrl)) continue; //vrací true / false, continue znamená přeskoč a jdi na další iteraci
         visited.add(normalizedUrl);
 
@@ -36,6 +40,9 @@ const crawl = async () => {
         const dom = new JSDOM(htmlBody);
         const document = dom.window.document;
 
+        console.log([...document.querySelectorAll("a")].map(a => a.getAttribute("href")));
+
+        const currentOrigin = new URL(currentUrl).origin;
         const links = [...document.querySelectorAll("a")].map(a=>a.getAttribute("href")) //vrátí přesně to, co je v atributu
         .filter(Boolean) // odstraní prázdné hodnoty
         .map(link => {
@@ -45,10 +52,17 @@ const crawl = async () => {
                 return null;
             }
         }).filter(Boolean);
-        
+        console.log("linky: ", links)
 
-        urlsToCrawl.push(...links);
-        //console.log(urlsToCrawl);    
+        for(const link of links){
+            const linkOrigin = new URL(link).origin;
+            if(linkOrigin === currentOrigin){
+                toCrawlOnPage.push(link);
+            }else{
+                urlsToCrawl.push(link);
+            }
+        }
+        console.log("on outer: ", urlsToCrawl, "on the page: ", toCrawlOnPage);    
     }
 
     await fs.writeFile(

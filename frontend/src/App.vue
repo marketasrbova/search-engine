@@ -1,12 +1,18 @@
 <template>
-  <input v-model="text"
-  @input = "event => text = event.target.value">
-  <button @click = "send" >send</button>
-  <ul>
-    <li  v-for = "d in data" :key = "d.url">
-      <a href = "{{ d.url }}" >{{ d.url }}</a>
-    </li>
-  </ul>
+  <main>
+    <div class = "search-bar">
+      <input v-model="text"
+      @input = "event => text = event.target.value">
+      <button @click = "send" >send</button>
+    </div>
+    <div class = "links">
+      <ul>
+        <li  v-for = "d in data" :key = "d.url">
+          <a :href = d.url target="_blank" rel="noopener" >{{ d.url }}</a>
+        </li>
+      </ul>
+    </div>
+  </main>
 </template>
 
 <script setup>
@@ -41,4 +47,18 @@ const send = async () => {
 </script>
 
 <style scoped>
+main{
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 1rem;
+  height: 600px;
+  width: 500px;
+  border: 2px, black, solid;
+}
+.search-bar{
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
 </style>
