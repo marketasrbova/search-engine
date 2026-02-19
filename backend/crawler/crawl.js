@@ -5,7 +5,7 @@ const baseUrl = "https://www.cam.ac.uk";
 const urlsToCrawl = [baseUrl];
 const toCrawlOnPage = [];
 const visited = new Set(); // každá hodnota v něm může být pouze jednou
-const maxCrawl = 100;
+const maxCrawl = 200;
 const rawData = [];
 
 function normalizeUrl(urlString){
@@ -29,8 +29,16 @@ const crawl = async () => {
         if (visited.has(normalizedUrl)) continue; //vrací true / false, continue znamená přeskoč a jdi na další iteraci
         visited.add(normalizedUrl);
 
-        const response = await fetch(currentUrl);
-        const htmlBody = await response.text(); // převádí tělíčko na string
+        let htmlBody = null;
+        try {
+            const response = await fetch(currentUrl);
+            if (!response.ok) continue;
+
+            htmlBody = await response.text();// převádí tělíčko na string
+        } catch (err) {
+            console.log("Failed to fetch:", currentUrl);
+            continue;
+        }
         
         rawData.push({
             url: currentUrl,
@@ -62,7 +70,7 @@ const crawl = async () => {
                 urlsToCrawl.push(link);
             }
         }
-        console.log("on outer: ", urlsToCrawl, "on the page: ", toCrawlOnPage);    
+        //console.log("on outer: ", urlsToCrawl, "on the page: ", toCrawlOnPage);    
     }
 
     await fs.writeFile(
